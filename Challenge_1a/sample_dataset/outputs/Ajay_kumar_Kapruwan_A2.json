@@ -1,0 +1,30 @@
+{
+    "title": "Assignment",
+    "outline": [
+        {
+            "level": "H1",
+            "text": "Assignment",
+            "page": 1
+        },
+        {
+            "level": "H3",
+            "text": "•",
+            "page": 4
+        },
+        {
+            "level": "H3",
+            "text": "Create GitHub Repositor",
+            "page": 4
+        },
+        {
+            "level": "H3",
+            "text": "•",
+            "page": 6
+        },
+        {
+            "level": "H3",
+            "text": "Host Website on GitHub Pages",
+            "page": 6
+        }
+    ]
+}

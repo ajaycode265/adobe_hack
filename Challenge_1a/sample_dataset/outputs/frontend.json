@@ -1,0 +1,50 @@
+{
+    "title": "Campus Hiring Evaluation - Frontend",
+    "outline": [
+        {
+            "level": "H1",
+            "text": "Campus Hiring Evaluation - Frontend",
+            "page": 1
+        },
+        {
+            "level": "H3",
+            "text": "Aﬀord Medical Technologies Private Limited",
+            "page": 1
+        },
+        {
+            "level": "H3",
+            "text": "July 15, 2025",
+            "page": 1
+        },
+        {
+            "level": "H2",
+            "text": "Terms & Conditions",
+            "page": 1
+        },
+        {
+            "level": "H2",
+            "text": "Deliverables & Evaluation Considerations",
+            "page": 1
+        },
+        {
+            "level": "H2",
+            "text": "Develop a React URL Shortener Web App",
+            "page": 2
+        },
+        {
+            "level": "H3",
+            "text": "Requirements & Constraints",
+            "page": 2
+        },
+        {
+            "level": "H3",
+            "text": "URL Shortener Page",
+            "page": 3
+        },
+        {
+            "level": "H3",
+            "text": "URL Shortener Statistics Page",
+            "page": 3
+        }
+    ]
+}
