@@ -90,14 +90,14 @@ def extract_outline_from_pdf(pdf_path):
 
 def process_pdfs():
     """Processes all PDFs in the input directory and saves the outlines."""
-    input_dir = Path("Challenge_1a/sample_dataset/pdfs")
-    output_dir = Path("Challenge_1a/sample_dataset/outputs")
+    input_dir = Path("/app/input")
+    output_dir = Path("/app/output")
     
     output_dir.mkdir(parents=True, exist_ok=True)
     
     pdf_files = list(input_dir.glob("*.pdf"))
     if not pdf_files:
-        print("No PDF files found in /app/input")
+        print("No PDF files found at " + str(input_dir))
         return
 
     for pdf_file in pdf_files:
