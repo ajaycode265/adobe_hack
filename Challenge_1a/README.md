@@ -1,129 +1,118 @@
-# Challenge 1a: PDF Processing Solution
+# PDF Outline Extractor
 
 ## Overview
-This is a **sample solution** for Challenge 1a of the Adobe India Hackathon 2025. The challenge requires implementing a PDF processing solution that extracts structured data from PDF documents and outputs JSON files. The solution must be containerized using Docker and meet specific performance and resource constraints.
 
-## Official Challenge Guidelines
+This project is a PDF processing solution designed to automatically extract a structured outline—including a title and hierarchical headings (H1, H2, H3)—from PDF documents. It is containerized using Docker, ensuring a consistent and isolated runtime environment.
 
-### Submission Requirements
-- **GitHub Project**: Complete code repository with working solution
-- **Dockerfile**: Must be present in the root directory and functional
-- **README.md**:  Documentation explaining the solution, models, and libraries used
+The script processes all PDF files from a designated `input` directory and generates a corresponding `.json` file for each, containing the extracted structure.
 
-### Build Command
+## How It Works
+
+The core logic resides in the `process_pdfs.py` script, which leverages the **PyMuPDF** library to analyze the content of each PDF. The process is as follows:
+
+1.  **Title Extraction**:
+    *   The script first attempts to extract the title from the PDF's metadata.
+    *   If no metadata title is found, it intelligently falls back to identifying the text with the largest font size on the first page, assuming it to be the main title.
+    *   If neither method yields a title, the PDF's filename is used as a last resort.
+
+2.  **Heading Identification**:
+    *   To distinguish headings from body text, the script performs a frequency analysis of all font styles (a combination of size, flags, and font name) used throughout the document.
+    *   The most frequently occurring style is assumed to be the **main body text**.
+    *   Any text set in a font size **larger** than the main body text is classified as a potential heading.
+
+3.  **Hierarchical Structuring**:
+    *   The identified heading font sizes are sorted in descending order.
+    *   The top three largest sizes are mapped to heading levels:
+        *   **Largest size** -> **H1**
+        *   **Second-largest size** -> **H2**
+        *   **Third-largest size** -> **H3**
+    *   The script then iterates through the document, tagging each piece of text that matches these heading styles with its corresponding level and page number.
+
+4.  **JSON Output**:
+    *   The final extracted structure, including the title and the list of headings, is written to a JSON file.
+
+## Technology Stack
+
+*   **Language**: Python 3.10
+*   **PDF Processing**: [PyMuPDF (fitz)](https://pymupdf.readthedocs.io/en/latest/) - A high-performance Python library for data extraction and manipulation of PDF documents.
+*   **Containerization**: Docker - To create a portable and reproducible environment for the application.
+
+## Project Structure
+
+```
+.
+├── Dockerfile           # Defines the Docker container environment and dependencies.
+├── process_pdfs.py      # The main Python script for PDF processing logic.
+├── input/               # Directory where you place the PDFs to be processed.
+├── output/              # Directory where the resulting JSON files will be saved.
+└── sample_dataset/
+    ├── pdfs/            # Sample PDF files for testing.
+    └── outputs/         # Expected JSON output for the sample PDFs.
+```
+
+## How to Run
+
+### Prerequisites
+
+*   [Docker](https://www.docker.com/get-started) must be installed and running on your system.
+
+### Step 1: Build the Docker Image
+
+First, build the Docker image from the project's root directory. This command creates an image named `pdf-processor`.
+
 ```bash
-docker build --platform linux/amd64 -t <reponame.someidentifier> .
+docker build --platform linux/amd64 -t pdf-processor .
 ```
 
-### Run Command
+### Step 2: Run the Processor
+
+Once the image is built, you can run the processor. The command mounts local directories into the container for input and output.
+
+#### To process the included sample PDFs:
+
+This command reads PDFs from `sample_dataset/pdfs` and saves the JSON output to `sample_dataset/outputs`.
+
 ```bash
-docker run --rm -v $(pwd)/input:/app/input:ro -v $(pwd)/output/repoidentifier/:/app/output --network none <reponame.someidentifier>
+docker run --rm \
+  -v "$(pwd)/sample_dataset/pdfs:/app/input:ro" \
+  -v "$(pwd)/sample_dataset/outputs:/app/output" \
+  --network none \
+  pdf-processor
 ```
 
-### Critical Constraints
-- **Execution Time**: ≤ 10 seconds for a 50-page PDF
-- **Model Size**: ≤ 200MB (if using ML models)
-- **Network**: No internet access allowed during runtime execution
-- **Runtime**: Must run on CPU (amd64) with 8 CPUs and 16 GB RAM
-- **Architecture**: Must work on AMD64, not ARM-specific
+#### To process your own PDFs:
 
-### Key Requirements
-- **Automatic Processing**: Process all PDFs from `/app/input` directory
-- **Output Format**: Generate `filename.json` for each `filename.pdf`
-- **Input Directory**: Read-only access only
-- **Open Source**: All libraries, models, and tools must be open source
-- **Cross-Platform**: Test on both simple and complex PDFs
+1.  Place your PDF files in the `input` directory.
+2.  Create an `output` directory if it doesn't exist.
+3.  Run the following command:
 
-## Sample Solution Structure
-```
-Challenge_1a/
-├── sample_dataset/
-│   ├── outputs/         # JSON files provided as outputs.
-│   ├── pdfs/            # Input PDF files
-│   └── schema/          # Output schema definition
-│       └── output_schema.json
-├── Dockerfile           # Docker container configuration
-├── process_pdfs.py      # Sample processing script
-└── README.md           # This file
+```bash
+docker run --rm \
+  -v "$(pwd)/input:/app/input:ro" \
+  -v "$(pwd)/output:/app/output" \
+  --network none \
+  pdf-processor
 ```
 
-## Sample Implementation
-
-### Current Sample Solution
-The provided `process_pdfs.py` is a **basic sample** that demonstrates:
-- PDF file scanning from input directory
-- Dummy JSON data generation
-- Output file creation in the specified format
-
-**Note**: This is a placeholder implementation using dummy data. A real solution would need to:
-- Implement actual PDF text extraction
-- Parse document structure and hierarchy
-- Generate meaningful JSON output based on content analysis
-
-### Sample Processing Script (`process_pdfs.py`)
-```python
-# Current sample implementation
-def process_pdfs():
-    input_dir = Path("/app/input")
-    output_dir = Path("/app/output")
-    
-    # Process all PDF files
-    for pdf_file in input_dir.glob("*.pdf"):
-        # Generate structured JSON output
-        # (Current implementation uses dummy data)
-        output_file = output_dir / f"{pdf_file.stem}.json"
-        # Save JSON output
-```
-
-### Sample Docker Configuration
-```dockerfile
-FROM --platform=linux/amd64 python:3.10
-WORKDIR /app
-COPY process_pdfs.py .
-CMD ["python", "process_pdfs.py"]
-```
+**Note on Volume Paths**: The `$(pwd)` syntax works on Linux and macOS. For Windows PowerShell, you can use `${pwd}`. For Windows Command Prompt, use `%cd%`.
 
 ## Expected Output Format
 
-### Required JSON Structure
-Each PDF should generate a corresponding JSON file that **must conform to the schema** defined in `sample_dataset/schema/output_schema.json`.
+The script generates a JSON file for each input PDF with the following structure:
 
-
-## Implementation Guidelines
-
-### Performance Considerations
-- **Memory Management**: Efficient handling of large PDFs
-- **Processing Speed**: Optimize for sub-10-second execution
-- **Resource Usage**: Stay within 16GB RAM constraint
-- **CPU Utilization**: Efficient use of 8 CPU cores
-
-### Testing Strategy
-- **Simple PDFs**: Test with basic PDF documents
-- **Complex PDFs**: Test with multi-column layouts, images, tables
-- **Large PDFs**: Verify 50-page processing within time limit
-
-
-## Testing Your Solution
-
-### Local Testing
-```bash
-# Build the Docker image
-docker build --platform linux/amd64 -t pdf-processor .
-
-# Test with sample data
-docker run --rm -v $(pwd)/sample_dataset/pdfs:/app/input:ro -v $(pwd)/sample_dataset/outputs:/app/output --network none pdf-processor
-```
-
-### Validation Checklist
-- [ ] All PDFs in input directory are processed
-- [ ] JSON output files are generated for each PDF
-- [ ] Output format matches required structure
-- [ ] **Output conforms to schema** in `sample_dataset/schema/output_schema.json`
-- [ ] Processing completes within 10 seconds for 50-page PDFs
-- [ ] Solution works without internet access
-- [ ] Memory usage stays within 16GB limit
-- [ ] Compatible with AMD64 architecture
-
----
-
-**Important**: This is a sample implementation. Participants should develop their own solutions that meet all the official challenge requirements and constraints. 
+```json
+{
+    "title": "Extracted Document Title",
+    "outline": [
+        {
+            "level": "H1",
+            "text": "This is a Main Heading",
+            "page": 1
+        },
+        {
+            "level": "H2",
+            "text": "This is a Subheading",
+            "page": 2
+        }
+    ]
+}
